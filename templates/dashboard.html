@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-widgets">
+
+  <!-- Crop Advisory Widget -->
+  <div class="widget">
+    <h3>🌾 Crop Advisory</h3>
+    <p>Get personalized crop guidance based on your location and crop type.</p>
+    <a href="{{ url_for('crop_advisory') }}">View Advisory</a>
+  </div>
+
+  <!-- Weather Forecast Widget -->
+  <div class="widget">
+    <h3>⛅ Weather</h3>
+    <p>{{ weather_info or "Loading weather..." }}</p>
+    <a href="{{ url_for('weather_forecast') }}">Full Forecast</a>
+  </div>
+
+  <!-- Soil Health Widget -->
+  <div class="widget">
+    <h3>🧪 Soil Health</h3>
+    <p>Check soil nutrient levels and recommendations.</p>
+    <a href="{{ url_for('soil_health') }}">View Details</a>
+  </div>
+
+  <!-- Plant Disease Widget -->
+  <div class="widget">
+    <h3>🌿 Disease Detection</h3>
+    <p>Identify plant diseases from leaf images.</p>
+    <a href="{{ url_for('plant_disease') }}">Detect Now</a>
+  </div>
+
+  <!-- Market Prices Widget -->
+  <div class="widget">
+    <h3>💹 Market Prices</h3>
+    <p>Check the latest market rates for your crops.</p>
+    <a href="{{ url_for('market_prices') }}">See Prices</a>
+  </div>
+
+  <!-- Profile Widget -->
+  <div class="widget">
+    <h3>👤 Profile</h3>
+    <p>Update your information and location details.</p>
+    <a href="{{ url_for('profile') }}">Edit Profile</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>🧪 Soil Health Requirements</h2>
+
+  <form id="soilHealthForm">
+    <label for="crop">Crop Name:</label><br>
+    <input type="text" id="crop" name="crop" required><br><br>
+
+    <label for="area">Select Area:</label><br>
+    <select id="area" name="area" required>
+      <option value="">--Select--</option>
+      {% for record in advisory_records %}
+      <option value="{{ record.latitude }},{{ record.longitude }}">{{ record.area }} acres ({{ record.crop }})</option>
+      {% endfor %}
+      <option value="other">Other (Enter coordinates manually)</option>
+    </select><br><br>
+
+    <div id="manual-coordinates" style="display: none;">
+      <label for="latitude">Latitude:</label><br>
+      <input type="number" step="any" id="latitude" name="latitude"><br>
+
+      <label for="longitude">Longitude:</label><br>
+      <input type="number" step="any" id="longitude" name="longitude"><br>
+
+      <button type="button" id="getLocationBtn">📍 Get Location</button><br><br>
+    </div>
+
+    <button type="submit">Get Soil Health Advice</button>
+  </form>
+
+  <div id="result" style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; border: 1px solid #ccc;">
+    <h3>Advice:</h3>
+    <div id="markdown-result" style="white-space: normal;"></div>
+  </div>
+</div>
+
+<!-- Markdown rendering support -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+document.getElementById('area').addEventListener('change', function () {
+  const manual = document.getElementById('manual-coordinates');
+  if (this.value === 'other') {
+    manual.style.display = 'block';
+    document.getElementById('latitude').required = true;
+    document.getElementById('longitude').required = true;
+  } else {
+    manual.style.display = 'none';
+    document.getElementById('latitude').required = false;
+    document.getElementById('longitude').required = false;
+  }
+});
+
+document.getElementById('soilHealthForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const crop = document.getElementById('crop').value;
+  const areaSelect = document.getElementById('area');
+  const selectedValue = areaSelect.value;
+
+  let lat, lon;
+  if (selectedValue === 'other') {
+    lat = document.getElementById('latitude').value;
+    lon = document.getElementById('longitude').value;
+  } else {
+    [lat, lon] = selectedValue.split(',');
+  }
+
+  const response = await fetch('/get_soil_health', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ crop, latitude: lat, longitude: lon })
+  });
+
+  const data = await response.json();
+  const markdownResult = document.getElementById('markdown-result');
+
+  if (data.soil_health) {
+    markdownResult.innerHTML = marked.parse(data.soil_health);
+  } else {
+    markdownResult.textContent = data.error || "No advice found.";
+  }
+});
+
+document.getElementById('getLocationBtn').addEventListener('click', function () {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+        document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+      },
+      function (error) {
+        alert("Failed to get location: " + error.message);
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
+});
+</script>
+{% endblock %}

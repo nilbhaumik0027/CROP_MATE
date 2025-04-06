@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>👤 Profile</h2>
+
+  {% if error %}
+    <p style="color:red; font-weight: bold;">{{ error }}</p>
+  {% endif %}
+
+  {% if profile %}
+    <form action="/profile" method="POST" style="max-width: 600px;">
+      <div class="form-group">
+        <label><strong>Email:</strong></label><br>
+        <p style="margin-left: 10px;">{{ profile.email }}</p>
+      </div>
+
+      <div class="form-group">
+        <label>Full Name:</label>
+        <input type="text" name="full_name" value="{{ profile.full_name or '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Mobile:</label>
+        <input type="text" name="mobile" value="{{ profile.mobile or '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Preferred Language:</label>
+        <input type="text" name="language" value="{{ profile.language or '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Address:</label>
+        <textarea name="address">{{ profile.address or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Latitude:</label>
+        <input type="text" name="latitude" id="latitude" value="{{ profile.latitude or '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Longitude:</label>
+        <input type="text" name="longitude" id="longitude" value="{{ profile.longitude or '' }}">
+      </div>
+
+      <div class="form-group">
+        <button type="button" onclick="detectLocation()">📍 Detect Location</button>
+      </div>
+
+      <div class="form-group">
+        <button type="submit">💾 Update Profile</button>
+      </div>
+    </form>
+
+    <hr style="margin: 30px 0;">
+
+    <div class="form-group">
+      <label><strong>Upload Profile Photo:</strong></label><br>
+      <input type="file" id="photoInput">
+      <img id="preview" style="max-width: 200px; margin-top: 10px; display: block;">
+      <button type="button" onclick="uploadPhoto()">Upload Photo</button>
+    </div>
+
+    {% if profile.profile_photo %}
+      <div style="margin-top: 20px;">
+        <strong>Current Profile Photo:</strong><br>
+        <img src="{{ profile.profile_photo }}" style="max-width: 200px; border: 1px solid #ccc; margin-top: 10px;">
+      </div>
+    {% endif %}
+
+  {% else %}
+    <p>⚠️ No profile info found.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const photoInput = document.getElementById('photoInput');
+  const preview = document.getElementById('preview');
+
+  photoInput?.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function uploadPhoto() {
+    const file = photoInput?.files[0];
+    if (!file) {
+      alert("Please choose a photo first.");
+      return;
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const storageRef = storage.ref(`profile_photos/${user.uid}`);
+        storageRef.put(file)
+          .then(snapshot => snapshot.ref.getDownloadURL())
+          .then(url => {
+            return db.collection('users').doc(user.uid).update({ profile_photo: url });
+          })
+          .then(() => {
+            alert("Profile photo updated!");
+            location.reload();
+          })
+          .catch(error => {
+            console.error("Upload failed:", error);
+            alert("Failed to upload photo.");
+          });
+      }
+    });
+  }
+
+  function detectLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
+      }, () => {
+        alert("Unable to retrieve location.");
+      });
+    } else {
+      alert("Geolocation not supported by this browser.");
+    }
+  }
+</script>
+{% endblock %}

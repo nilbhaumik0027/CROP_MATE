@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>📊 Market Prices vs MSP (2018-19)</h2>
+
+  {% if prices %}
+    <table style="width: 100%; border-collapse: collapse; font-size: 16px;">
+      <thead>
+        <tr style="background-color: #f0f0f0;">
+          <th style="border: 1px solid #ccc; padding: 8px;">Crop</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Commodity</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">MSP (₹/Quintal)</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Market Price (₹/Quintal)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in prices %}
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 8px;">{{ item.crop }}</td>
+          <td style="border: 1px solid #ccc; padding: 8px;">{{ item.commodity }}</td>
+          <td style="border: 1px solid #ccc; padding: 8px;">{{ item.msp }}</td>
+          <td style="border: 1px solid #ccc; padding: 8px;">{{ item.market_price }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>⚠️ No data available at the moment. Please try again later.</p>
+  {% endif %}
+</div>
+{% endblock %}

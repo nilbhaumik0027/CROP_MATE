@@ -1,0 +1,270 @@
+/* -------------------- RESET / BASIC STYLES -------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+body {
+  background: #f5f5f5;
+  color: #333;
+}
+a {
+  text-decoration: none;
+  color: #007BFF;
+}
+a:hover {
+  color: #0056b3;
+}
+
+/* -------------------- LOGIN/REGISTRATION -------------------- */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.login-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.login-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+.login-container input,
+.login-container select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+.login-container button:hover {
+  background: #218838;
+}
+.login-container .links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* -------------------- DASHBOARD LAYOUT -------------------- */
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #2c3e50;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.sidebar h3 {
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.sidebar ul {
+  list-style: none;
+}
+.sidebar ul li {
+  margin-bottom: 15px;
+}
+.sidebar ul li a {
+  color: #fff;
+  font-size: 16px;
+}
+.sidebar ul li a:hover {
+  text-decoration: underline;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ecf0f1;
+}
+
+/* Top Bar */
+.topbar {
+  background: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.topbar .welcome {
+  font-size: 18px;
+  font-weight: bold;
+}
+.topbar .weather-widget {
+  font-size: 14px;
+  color: #555;
+}
+
+/* -------------------- ADVISORY SECTION -------------------- */
+.advisory-section {
+  margin: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.advisory-section h2 {
+  margin-bottom: 10px;
+}
+.advisory-section p {
+  line-height: 1.6;
+}
+
+/* -------------------- MARKET PRICE TABLE -------------------- */
+.advisory-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+.advisory-section th,
+.advisory-section td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+.advisory-section thead {
+  background-color: #f0f0f0;
+}
+.advisory-section td.low-price {
+  color: red;
+  font-weight: bold;
+}
+
+/* -------------------- FORM SECTION (Crop Advisory) -------------------- */
+.advisory-form {
+  margin: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.advisory-form h3 {
+  margin-bottom: 15px;
+}
+.advisory-form label {
+  display: block;
+  margin: 10px 0 6px;
+  font-weight: 600;
+}
+.advisory-form input,
+.advisory-form select,
+.advisory-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.advisory-form button {
+  padding: 10px 20px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.advisory-form button:hover {
+  background: #0056b3;
+}
+
+/* -------------------- CROP RECORD LIST -------------------- */
+.record-list {
+  margin: 20px;
+}
+.record-card {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-left: 5px solid #007BFF;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.record-card h4 {
+  margin-bottom: 5px;
+}
+.record-card p {
+  margin: 3px 0;
+}
+.record-card .btn-advice {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 6px 12px;
+  background: #28a745;
+  color: #fff;
+  border-radius: 4px;
+  text-align: center;
+}
+.record-card .btn-advice:hover {
+  background: #218838;
+}
+
+/* -------------------- MODEL SECTION (if used) -------------------- */
+.model-section {
+  margin: 20px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.model-section h2 {
+  margin-bottom: 10px;
+}
+.model-section p {
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.model-section .output-box {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* -------------------- RESPONSIVE DESIGN -------------------- */
+@media(max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  .main-content {
+    height: auto;
+  }
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .login-container {
+    margin: 20px;
+  }
+}

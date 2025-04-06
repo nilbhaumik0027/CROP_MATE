@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>📍 Weather Forecast</h2>
+  <button onclick="getWeather()">🔄 Refresh</button>
+
+  <div id="weather-container" style="margin-top: 20px;">
+    <p>📡 Fetching weather...</p>
+  </div>
+</div>
+
+<script>
+async function getWeather() {
+  const container = document.getElementById("weather-container");
+  container.innerHTML = "📡 Fetching weather...";
+
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    const res = await fetch(`/get_weather?lat=${lat}&lon=${lon}`);
+    const data = await res.json();
+
+    if (data.error) {
+      container.innerHTML = `<p style="color: red;">❌ ${data.error}</p>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <h3>📍 ${data.city}</h3>
+      <p><strong>${data.description}</strong></p>
+      <p>🌡️ Temperature: ${data.temp}°C</p>
+      <p>🌅 Sunrise: ${data.sunrise}</p>
+      <p>🌇 Sunset: ${data.sunset}</p>
+      <p>📅 Date: ${data.date}</p>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p style="color: red;">⚠️ Could not fetch location or weather</p>`;
+  }
+}
+
+// Auto load on page open
+window.onload = getWeather;
+</script>
+{% endblock %}

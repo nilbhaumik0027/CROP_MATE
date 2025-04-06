@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>🦠 Plant Disease Detection</h2>
+
+  <form id="diseaseForm" action="/detect_disease" method="POST" enctype="multipart/form-data">
+    <label for="plantImage">Upload Plant Image:</label><br>
+    <input type="file" id="plantImage" name="plantImage" accept="image/*" required><br><br>
+
+    {% if image_url %}
+    <div id="previewContainer" style="margin-bottom: 10px;">
+      <strong>Preview:</strong><br>
+      <img src="{{ image_url }}" alt="Preview" style="max-width: 300px; border: 1px solid #ccc;">
+    </div>
+    {% endif %}
+
+    <button type="submit">🧪 Detect Disease</button>
+
+    {% if loading %}
+    <div id="loading" style="margin-top: 10px;">🔍 Analyzing... Please wait.</div>
+    {% endif %}
+  </form>
+
+  {% if result %}
+  <div id="diseaseResult" style="margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ccc;">
+    <h3>Diagnosis Result:</h3>
+    <div id="diseaseOutput" style="white-space: pre-wrap;">{{ result }}</div>
+  </div>
+  {% elif error %}
+  <div id="diseaseResult" style="margin-top: 20px; padding: 15px; background: #ffe6e6; border: 1px solid #e00;">
+    <h3>Error:</h3>
+    <div style="white-space: pre-wrap;">{{ error }}</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

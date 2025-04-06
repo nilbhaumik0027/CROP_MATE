@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Advisory Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>Menu</h3>
+      <ul>
+        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('crop_advisory') }}">Get Crop Advisory</a></li>
+        <li><a href="{{ url_for('weather_forecast') }}">Weather Forecast</a></li>
+        <li><a href="{{ url_for('soil_health') }}">Soil Health Requirements</a></li>
+        <li><a href="{{ url_for('plant_disease') }}">Plant Disease Detection</a></li>
+        <li><a href="{{ url_for('market_prices') }}">Market Prices</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="welcome" id="welcome-message">
+          Loading user...
+        </div>        
+        <div class="weather-widget" id="weather-widget">
+          {{ weather_info or 'Loading weather...' }}
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+
+  <!-- Firebase Initialization -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqqFCHWucubCbUi9alzX1qcJMnlhshKUQ",
+      authDomain: "authenticatpy.firebaseapp.com",
+      projectId: "authenticatpy",
+      storageBucket: "authenticatpy.firebasestorage.app",
+      messagingSenderId: "86287674264",
+      appId: "1:86287674264:web:4f3eeeb623e997df65d9ed"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+  </script>
+
+  <!-- Dynamic Weather Loader -->
+  <script>
+    function fetchWeather(lat, lon) {
+      fetch(`/get_weather_data?lat=${lat}&lon=${lon}`)
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById('weather-widget').innerText = data;
+        })
+        .catch(() => {
+          document.getElementById('weather-widget').innerText = "Weather unavailable";
+        });
+    }
+
+    function detectAndFetchWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          fetchWeather(lat, lon);
+        }, () => {
+          fetchWeather(22.34, 87.23);  // fallback to default
+        });
+      } else {
+        fetchWeather(22.34, 87.23); // fallback to default
+      }
+    }
+
+    
+    function loadUserEmail() {
+    fetch('/get_user_email')
+      .then(res => res.text())
+      .then(email => {
+        document.getElementById('welcome-message').innerText = `Welcome, ${email || 'Farmer'}!`;
+      })
+      .catch(() => {
+        document.getElementById('welcome-message').innerText = "Welcome, Farmer!";
+      });
+  }
+
+  window.onload = () => {
+    detectAndFetchWeather();
+    loadUserEmail();
+  };
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

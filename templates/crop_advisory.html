@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="advisory-section">
+  <h2>Get Crop Advisory</h2>
+  <button id="show-form-btn">➕ Record</button>
+
+  <div id="record-form" style="display: none; margin-top: 20px;">
+    <form id="advisoryForm">
+      <label>Area of Land (in acres):</label><br>
+      <input type="text" name="area" required><br><br>
+
+      <label>Crop:</label><br>
+      <input type="text" name="crop" required><br><br>
+
+      <label>Location:</label><br>
+      <button type="button" onclick="getLocation()">📍 Get</button><br><br>
+      <input type="text" name="latitude" placeholder="Latitude" required>
+      <input type="text" name="longitude" placeholder="Longitude" required><br><br>
+
+      <button type="submit">💾 Save</button>
+    </form>
+  </div>
+
+  <hr>
+  <h3>📋 Your Records</h3>
+  <ul id="records-list"></ul>
+</div>
+
+<!-- Advisory Modal -->
+<div id="adviceModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>🌾 Crop Advisory</h3>
+    <div id="adviceText" style="white-space: pre-wrap;"></div>
+  </div>
+</div>
+
+<!-- Add marked.js -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 80px;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 60%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: red;
+  }
+
+  #adviceText {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  #adviceText h4, #adviceText h3 {
+    margin-top: 15px;
+    color: #2e7d32;
+  }
+</style>
+
+<script>
+document.getElementById("show-form-btn").onclick = () => {
+  const form = document.getElementById("record-form");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+};
+
+function getLocation() {
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.querySelector("[name='latitude']").value = pos.coords.latitude;
+    document.querySelector("[name='longitude']").value = pos.coords.longitude;
+  }, err => alert("Location access denied"));
+}
+
+document.getElementById("advisoryForm").onsubmit = async function(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+
+  const response = await fetch("/add_advisory", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+  alert(result.message);
+  e.target.reset();
+  loadRecords();
+};
+
+async function loadRecords() {
+  const response = await fetch("/get_advisories");
+  const records = await response.json();
+  const list = document.getElementById("records-list");
+  list.innerHTML = "";
+
+  records.forEach((record) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div id="view-${record.id}">
+        <strong>${record.crop}</strong> - ${record.area} acres @ (${record.latitude}, ${record.longitude})
+        <button onclick="showAdvice('${record.id}')">🧠 Advice</button>
+        <button onclick="editRecord('${record.id}', this)">✏️ Edit</button>
+        <button onclick="deleteRecord('${record.id}')">🗑️ Delete</button>
+      </div>
+
+      <div id="edit-${record.id}" style="display: none;">
+        <input type="text" id="edit-area-${record.id}" value="${record.area}" />
+        <input type="text" id="edit-crop-${record.id}" value="${record.crop}" />
+        <input type="text" id="edit-lat-${record.id}" value="${record.latitude}" />
+        <input type="text" id="edit-lng-${record.id}" value="${record.longitude}" />
+        <button onclick="saveRecord('${record.id}')">💾 Save</button>
+        <button onclick="cancelEdit('${record.id}')">❌ Cancel</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+async function showAdvice(recordId) {
+  const modal = document.getElementById("adviceModal");
+  const adviceText = document.getElementById("adviceText");
+
+  modal.style.display = "block";
+  adviceText.innerHTML = "⏳ Fetching advice...";
+
+  const res = await fetch(`/get_advice/${recordId}`);
+  const result = await res.json();
+
+  if (result.advice) {
+    // Convert markdown to HTML
+    adviceText.innerHTML = marked.parse(result.advice);
+  } else {
+    adviceText.innerHTML = `<span style="color: red;">❌ ${result.error || "Failed to get advice"}</span>`;
+  }
+}
+
+// Modal close logic
+document.querySelector(".close").onclick = () => {
+  document.getElementById("adviceModal").style.display = "none";
+};
+
+window.onclick = function(event) {
+  if (event.target == document.getElementById("adviceModal")) {
+    document.getElementById("adviceModal").style.display = "none";
+  }
+}
+
+function editRecord(id, btn) {
+  document.getElementById(`view-${id}`).style.display = 'none';
+  document.getElementById(`edit-${id}`).style.display = 'block';
+}
+
+function cancelEdit(id) {
+  document.getElementById(`edit-${id}`).style.display = 'none';
+  document.getElementById(`view-${id}`).style.display = 'block';
+}
+
+async function saveRecord(id) {
+  const data = {
+    area: document.getElementById(`edit-area-${id}`).value,
+    crop: document.getElementById(`edit-crop-${id}`).value,
+    latitude: document.getElementById(`edit-lat-${id}`).value,
+    longitude: document.getElementById(`edit-lng-${id}`).value,
+  };
+
+  const res = await fetch(`/update_advisory/${id}`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+  alert(result.message);
+  loadRecords();
+}
+
+async function deleteRecord(id) {
+  if (!confirm("Are you sure you want to delete this record?")) return;
+
+  const res = await fetch(`/delete_advisory/${id}`, { method: "DELETE" });
+  const result = await res.json();
+  alert(result.message);
+  loadRecords();
+}
+
+loadRecords(); // Initial load
+</script>
+{% endblock %}
